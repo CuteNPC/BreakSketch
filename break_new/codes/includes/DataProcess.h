@@ -1,6 +1,10 @@
 #ifndef _DATAPROCESS_H
 #define _DATAPROCESS_H
 
+#define Jstart 3
+#define Jend 20
+#define Base 0.1
+
 #include <bits/stdc++.h>
 #include "params.h"
 #include "Packet.h"
@@ -96,8 +100,8 @@ uint32_t Addseq(vector<pair<uint32_t, uint32_t>> &input, set<uint32_t> &flowLarg
     return flowcnt.size();
 }
 
-uint32_t lossPacket(vector<Packet> &complete_data, vector<Packet> &loss_data, 
-                vector<char> &standard_output, double loss_prob, int random_seed)
+uint32_t lossPacket(vector<Packet> &complete_data, vector<Packet> &loss_data,
+                    vector<char> &standard_output, double loss_prob, int random_seed)
 {
     mt19937 gen(random_seed);
     uniform_real_distribution<double> random_num;
@@ -127,7 +131,7 @@ uint32_t lossPacket(vector<Packet> &complete_data, vector<Packet> &loss_data,
 
 // 从<f,T>构造<f,T,seq>，但不会抛弃包数小于256的包
 uint32_t Addseq_with256(vector<pair<uint32_t, uint32_t>> &input,
-                map<uint32_t, uint32_t> &flowcnt, vector<Packet> &ret, int random_seed) /* double prob = LOSS_PROB, int read_num = -1)*/
+                        map<uint32_t, uint32_t> &flowcnt, vector<Packet> &ret, int random_seed) /* double prob = LOSS_PROB, int read_num = -1)*/
 {
     // 初始化随机数引擎
 
@@ -148,10 +152,9 @@ uint32_t Addseq_with256(vector<pair<uint32_t, uint32_t>> &input,
     return flowcnt.size();
 }
 
-
-//不去小流，不一次丢多个包的版本
-uint32_t lossPacket_with256(vector<Packet> &complete_data, set<uint32_t> &flowLargerThan256, 
-                vector<Packet> &loss_data, vector<char> &standard_output, double loss_prob, int random_seed)
+// 不去小流，不一次丢多个包的版本
+uint32_t lossPacket_with256(vector<Packet> &complete_data, set<uint32_t> &flowLargerThan256,
+                            vector<Packet> &loss_data, vector<char> &standard_output, double loss_prob, int random_seed)
 {
     mt19937 gen(random_seed);
     uniform_real_distribution<double> random_num;
@@ -179,47 +182,66 @@ uint32_t lossPacket_with256(vector<Packet> &complete_data, set<uint32_t> &flowLa
     return losscnt.size();
 }
 
-/*
-//不去小流，可以一次丢多个包的版本(试着写了写，请再修改)，编译会报错在198行，我不知道为什么
-uint32_t lossPacket_with256(vector<Packet> &complete_data, set<uint32_t> &flowLargerThan256, 
-                vector<Packet> &loss_data, vector<char> &standard_output, double loss_prob, int random_seed)
+// 不去小流，可以一次丢多个包的版本(试着写了写，请再修改)，编译会报错在198行，我不知道为什么
+uint32_t lossPacket_with256_New(vector<Packet> &complete_data, set<uint32_t> &flowLargerThan256,
+                                vector<Packet> &loss_data, vector<char> &standard_output, double loss_prob, int random_seed)
 {
     mt19937 gen(random_seed);
-    uniform_real_distribution<double> random_num;
-    uniform_real_distribution<uint32_t> random_j;
-    loss_data.clear();
-    standard_output.clear();
-    map<uint32_t, uint32_t> losscnt;
+    uniform_real_distribution<double> random_real;
+    uniform_int_distribution<uint32_t> random_int(Jstart, Jend); /*需要改一下函数名*/
+    loss_data.clear();                                           /*丢包后的序列*/
+    standard_output.clear();                                     /*生成标准输出*/
+    map<uint32_t, uint32_t> losscnt;                             /*已连续丢失的计数，用来生成standard_output*/
+    map<uint32_t, uint32_t> ToBeLost;                            /*还需要连续丢失的计数*/
     int cnt = 0;
     uint32_t total = complete_data.size();
     for (uint32_t i = 0; i < total; ++i)
     {
         Packet packet = complete_data[i];
-        uint32_t j = random_j(gen);
-        if((flowLargerThan256.count(packet.id)) && random_num(gen) <= ((double)0.1 * j))
+        if (!flowLargerThan256.count(packet.id)) /*是小流*/
         {
-            if (losscnt.count(packet.id))
-                losscnt[packet.id] += j;
-            i += j - 1;
-        }
-        else if ((flowLargerThan256.count(packet.id)) && random_num(gen) <= loss_prob)
-        {
-            if (losscnt.count(packet.id))
-                losscnt[packet.id]++;
-        }
-        else
-        {
+            /*不丢包*/
             loss_data.push_back(packet);
-            if (losscnt.count(packet.id))
-                standard_output.push_back(losscnt[packet.id] >= 3 ? 'b' : 'n');
+            standard_output.push_back('n');
+        }
+        else /*不是小流*/
+        {
+            if (ToBeLost[packet.id] == 0) /*没有还应该丢的包，开始取随机*/
+            {
+                uint32_t j = random_int(gen); /*生成随机数*/
+                if (random_real(gen) <= pow(Base, j))
+                {
+                    /*中奖*/
+                    ToBeLost[packet.id] = j;
+                }
+                else if (random_real(gen) <= 0.01)
+                {
+                    ToBeLost[packet.id] = 1;
+                }
+            }
+
+            if (ToBeLost[packet.id] == 0)
+            {
+                /*仍不丢*/
+                loss_data.push_back(packet);
+                if (losscnt.count(packet.id))
+                    standard_output.push_back(losscnt[packet.id] >= 3 ? 'b' : 'n');
+                else
+                    standard_output.push_back('n');
+                losscnt[packet.id] = 0;
+            }
             else
-                standard_output.push_back('n');
-            losscnt[packet.id] = 0;
+            {
+                /*丢包*/
+                if (losscnt.count(packet.id))
+                    losscnt[packet.id]++;
+                /*待丢包计数减一*/
+                ToBeLost[packet.id]--;
+            }
         }
     }
     return losscnt.size();
 }
-*/
 
 uint32_t Load(vector<Packet> &dataset, string filename = "../data/loss_data.txt", int readnum = -1)
 {

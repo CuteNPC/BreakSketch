@@ -35,7 +35,7 @@ int main()
         loss_data_fout << elem.id << ' ' << elem.seq << ' ' << elem.time << '\n';
     loss_data_fout.close();
 
-    ofstream standard_output_fout("output/standard_output.txt", ios::trunc | ios::out);
+    ofstream standard_output_fout("../data/standard_output.txt", ios::trunc | ios::out);
     for (auto elem : standard_output)
         standard_output_fout << elem << '\n';
     standard_output_fout.close();

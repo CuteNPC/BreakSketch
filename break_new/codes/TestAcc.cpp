@@ -58,7 +58,7 @@ int main()
             sprintf(filename_str, "%s-%d", break_sketch[i]->Name().c_str(), mem);
             GetOutput(break_sketch[i], dataset, filename_str);
             delete break_sketch[i];
-            Acc acc = CompareOutput(filename_str, "output/standard_output.txt");
+            Acc acc = CompareOutput(filename_str, "../data/standard_output.txt");
             remove((string("output/") + filename_str + string(".txt")).c_str());
             F1out << ',' << acc.F1;
             RRout << ',' << acc.RR;

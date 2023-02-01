@@ -182,7 +182,7 @@ uint32_t lossPacket_with256(vector<Packet> &complete_data, set<uint32_t> &flowLa
     return losscnt.size();
 }
 
-// 不去小流，可以一次丢多个包的版本(试着写了写，请再修改)，编译会报错在198行，我不知道为什么
+// 不去小流，可以一次丢多个包的版本
 uint32_t lossPacket_with256_New(vector<Packet> &complete_data, set<uint32_t> &flowLargerThan256,
                                 vector<Packet> &loss_data, vector<char> &standard_output, double loss_prob, int random_seed)
 {
@@ -245,6 +245,7 @@ uint32_t lossPacket_with256_New(vector<Packet> &complete_data, set<uint32_t> &fl
 
 uint32_t Load(vector<Packet> &dataset, string filename = "../data/loss_data.txt", int readnum = -1)
 {
+    dataset.clear();
     ifstream datainput(filename);
     Packet packet;
     int packcnt = 0;

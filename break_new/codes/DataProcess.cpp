@@ -28,7 +28,7 @@ int main()
         complete_data_fout << elem.id << ' ' << elem.seq << ' ' << elem.time << '\n';
     complete_data_fout.close();
 
-    cout << lossPacket_with256(complete_data, flowSetMoreThan256, loss_data, standard_output, LOSS_PROB, RANDOM_SEED) << endl;
+    cout << lossPacket_with256_New(complete_data, flowSetMoreThan256, loss_data, standard_output, LOSS_PROB, RANDOM_SEED) << endl;
 
     ofstream loss_data_fout("../data/loss_data.txt", ios::trunc | ios::out);
     for (auto elem : loss_data)

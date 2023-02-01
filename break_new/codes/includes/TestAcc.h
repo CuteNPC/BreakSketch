@@ -39,6 +39,8 @@ void GetOutput(Break_Sketch *break_sketch, vector<Packet> &dataset, string filen
     for (Packet packet : dataset)
         output.push_back(break_sketch->Solution(packet) ? 'b' : 'n');
 
+    if (access("output", 0))
+        mkdir("output", S_IRWXU);
     string path = string("output/") + filename + string(".txt");
     ofstream fout(path, ios::trunc | ios::out);
 

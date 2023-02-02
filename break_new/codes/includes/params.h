@@ -1,7 +1,7 @@
 #ifndef _PARAMS_H
 #define _PARAMS_H
 
-#define JUDGEMENT
+//#define JUDGEMENT
 
 #define COUNTER_SIZE 32 // counter_size
 

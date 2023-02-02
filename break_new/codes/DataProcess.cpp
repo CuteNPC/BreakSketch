@@ -35,10 +35,14 @@ int main()
         loss_data_fout << elem.id << ' ' << elem.seq << ' ' << elem.time << '\n';
     loss_data_fout.close();
 
+    int total_break = 0;
     ofstream standard_output_fout("../data/standard_output.txt", ios::trunc | ios::out);
-    for (auto elem : standard_output)
+    for (auto elem : standard_output){
+        if(elem == 'b') total_break ++;
         standard_output_fout << elem << '\n';
+    }
     standard_output_fout.close();
 
+    cout << total_break <<endl;
     return 0;
 }

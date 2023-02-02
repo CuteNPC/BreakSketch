@@ -4,6 +4,10 @@
 #define Jstart 3
 #define Jend 20
 #define Base 0.1
+/*记录：
+    Base： 0.1     0.2    0.25     0.3     0.4
+    断流： 1400   13000   27000    50000  140000
+*/
 
 #include <bits/stdc++.h>
 #include "params.h"

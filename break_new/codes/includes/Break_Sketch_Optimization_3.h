@@ -1,5 +1,5 @@
-#ifndef _BREAK_SKETCH_OPTIMIZATION_1_H
-#define _BREAK_SKETCH_OPTIMIZATION_1_H
+#ifndef _BREAK_SKETCH_OPTIMIZATION_3_H
+#define _BREAK_SKETCH_OPTIMIZATION_3_H
 
 #include "BOBHash.h"
 #include "params.h"
@@ -10,29 +10,28 @@
 #include "Tower_Sketch_CU.h"
 
 using namespace std;
-
-class Break_Sketch_Optimization_1 : public Break_Sketch
+/* 就是把 Op1 的三张表改成两张了 */
+class Break_Sketch_Optimization_3 : public Break_Sketch
 {
 public:
-    SIMD_Bucket_4_32 *bucket[3];
+    SIMD_Bucket_4_32 *bucket[2];
     int size;
-    BOBHash *hash[3];
+    BOBHash *hash[2];
     Tower_Sketch *TS;
 
 public:
-    Break_Sketch_Optimization_1(int memory, int TSmemory, int hash_seed1 = 1000, int hash_seed2 = 1010, int hash_seed3 = 1020)
+    Break_Sketch_Optimization_3(int memory, int TSmemory, int hash_seed1 = 1000, int hash_seed2 = 1010, int hash_seed3 = 1020)
         : Break_Sketch(memory)
     {
-        size = (memory - TSmemory) / 48;
+        size = (memory - TSmemory) / 32;
 
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < 2; i++)
         {
             bucket[i] = new SIMD_Bucket_4_32[size];
         }
 
         hash[0] = new BOBHash(hash_seed1);
         hash[1] = new BOBHash(hash_seed2);
-        hash[2] = new BOBHash(hash_seed3);
 
         TS = new Tower_Sketch(TSmemory);
     }
@@ -47,7 +46,7 @@ public:
         else
         {
             int bucket_res = 0;
-            for (int i = 0; i <= 2; i++)
+            for (int i = 0; i < 2; i++)
             {
                 int index = hash[i]->run((char *)&packet.id, sizeof(packet.id)) % size;
 #ifdef JUDGEMENT
@@ -58,9 +57,8 @@ public:
             }
         
 #ifdef JUDGEMENT
-            return bucket_res == 3;
+            return bucket_res == 2;
 #else
-            //return bucket_res > 1;
             return bucket_res > 0;
 #endif
         }
@@ -68,12 +66,13 @@ public:
 
     string Name()
     {
-        return string("Break_Sketch_Optimization_1");
+        return string("Break_Sketch_Optimization_3");
     }
-    ~Break_Sketch_Optimization_1()
+
+    ~Break_Sketch_Optimization_3()
     {
         delete TS;
-        for (int i = 0; i <= 2; i++)
+        for (int i = 0; i < 2; i++)
         {
             delete hash[i];
             delete[] bucket[i];

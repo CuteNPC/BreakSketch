@@ -75,7 +75,8 @@ public:
 #ifdef JUDGEMENT
             return bucket_res == 3;
 #else
-            return bucket_res > 1;
+            //return bucket_res > 1;
+            return bucket_res > 0;
 #endif
         }
     }

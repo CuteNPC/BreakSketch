@@ -228,29 +228,27 @@ void diff_Op(int n)
 
 int main(int argc, char *argv[])
 {
-    cout << omp_get_num_threads() << endl;
+    cout << Load(dataset, "../data/loss_data.txt") << endl;
+
     if (access("../result", 0))
         mkdir("../result", S_IRWXU);
     if (access("../result/output", 0))
         mkdir("../result/output", S_IRWXU);
-    cout << Load(dataset, "../data/loss_data.txt") << endl;
-    if (argc == 1)
-    {
-#pragma omp parallel for // 并行计算
-        for (int i = 0; i < 20; i++)
-        {
-            if (i % 2)
-                diff_Totmem(i / 2);
-            else
-                diff_TSmem(i / 2);
-        }
 
-        sleep(3);
-        /*时间单线程计算，以防互相干扰*/
-        for (int i = 0; i < 10; i++)
-        {
-            time(i);
-        }
+#pragma omp parallel for // 并行计算
+    for (int i = 0; i < 20; i++)
+    {
+        if (i % 2)
+            diff_Totmem(i / 2);
+        else
+            diff_TSmem(i / 2);
+    }
+
+    sleep(3);
+    /*时间单线程计算，以防互相干扰*/
+    for (int i = 0; i < 10; i++)
+    {
+        time(i);
     }
     return 0;
 }

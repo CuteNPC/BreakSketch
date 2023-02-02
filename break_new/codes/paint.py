@@ -1,4 +1,4 @@
-#!/usr/bplt.xscale('log')in/env python
+#!/usr/bin/env python
 # coding=utf-8
 
 import pandas as pd
@@ -41,6 +41,8 @@ def paint_module(filepath, filename ,title, xlabelname, xscalename, ylabelname):
              linestyle='-', marker='<', markersize=6)
     plt.plot(F1csv['X'], F1csv['Break_Sketch_Optimization_2'], label='Op2',
              linestyle='-', marker='>', markersize=6)
+    plt.plot(F1csv['X'], F1csv['Break_Sketch_Optimization_3'], label='Op0',
+             linestyle='-', marker='*', markersize=6)
 
     plt.legend()
     plt.savefig(filepath + filename+'.png', dpi=300, bbox_inches='tight')
@@ -89,8 +91,8 @@ def paint_diff_Totalmemory(st=0, ed=10):
     paint_module(filepath, "Recall", "Recall of Sketch", xlabelname, xscalename, ylabelname = "RR")
 
 def main():
-    # paint_diff_TSmemory(0, 6)
-    paint_diff_Totalmemory(0, 1)
-    # paint_time(0, 10)
+    paint_diff_TSmemory(0, 10)
+    paint_diff_Totalmemory(0, 10)
+    paint_time(0, 10)
 
 main()

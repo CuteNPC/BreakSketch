@@ -33,15 +33,29 @@ public:
     }
 };
 
+uint32_t Load(vector<Packet> &dataset, string filename = "../data/loss_data.txt", int readnum = -1)
+{
+    dataset.clear();
+    ifstream datainput(filename);
+    Packet packet;
+    int packcnt = 0;
+    while (datainput >> packet.id >> packet.seq >> packet.time)
+    {
+        dataset.push_back(packet);
+        if (++packcnt == readnum)
+            break;
+    }
+    datainput.close();
+    return packcnt;
+}
+
 void GetOutput(Break_Sketch *break_sketch, vector<Packet> &dataset, string filename)
 {
     vector<char> output;
     for (Packet packet : dataset)
         output.push_back(break_sketch->Solution(packet) ? 'b' : 'n');
 
-    if (access("output", 0))
-        mkdir("output", S_IRWXU);
-    string path = string("output/") + filename + string(".txt");
+    string path = string("../result/output/") + filename + string(".txt");
     ofstream fout(path, ios::trunc | ios::out);
 
     for (char c : output)
@@ -49,9 +63,9 @@ void GetOutput(Break_Sketch *break_sketch, vector<Packet> &dataset, string filen
     fout.close();
 }
 
-Acc CompareOutput(string Testfile, string Standardfile = "output/standard_output.txt")
+Acc CompareOutput(string Testfile, string Standardfile = "../data/standard_output.txt")
 {
-    ifstream testinput(string("output/") + Testfile + string(".txt"));
+    ifstream testinput(string("../result/output/") + Testfile + string(".txt"));
     ifstream standardinput(Standardfile);
     Acc acc;
     char t, s;

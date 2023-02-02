@@ -20,13 +20,12 @@ public:
     struct cell
     {
         uint32_t seq;
-        int LRU_tag;
-        cell() { seq = LRU_tag = 0; }
+        int t;
+        cell() { seq = t = 0; }
     };
     int w;           // bucket的个数
     cell *tables[4]; // 4张table，每张w个cell
     BOBHash *hash[4];
-    int index[4];
     Tower_Sketch *TS;
 
 public:
@@ -49,84 +48,68 @@ public:
 
     void Insert(Packet packet)
     {
+        int index[4];
         for (int i = 0; i < 4; i++)
             index[i] = (hash[i]->run((const char *)&packet.id, KEY_LEN)) % w;
 
-        int empty = 0;
-        int min_i, min_LRUtag = 6; // 不会比5更大
+        int minplace = 0;
         for (int i = 0; i < 4; i++)
         {
-            if (tables[i][index[i]].seq == 0)
-            { // 位置是空的
-                if (!empty)
-                {
-                    tables[i][index[i]].seq = packet.seq;
-                    tables[i][index[i]].LRU_tag = 5;
-                    empty = 1;
-                }
+            if (tables[i][index[i]].seq == 0) /*找空的，找到了直接插入返回*/
+            {
+                tables[i][index[i]].seq = packet.seq;
+                tables[i][index[i]].t = packet.time;
+                return;
             }
-            else
-            { // 非空
-                tables[i][index[i]].LRU_tag--;
-                if (tables[i][index[i]].LRU_tag < min_LRUtag)
-                {
-                    min_LRUtag = tables[i][index[i]].LRU_tag;
-                    min_i = i;
-                }
-            }
+            if (tables[i][index[i]].t < tables[minplace][index[minplace]].t) /*找最小的time*/
+                minplace = i;
         }
-        if (!empty)
-        {
-            tables[min_i][index[min_i]].seq = packet.seq;
-            tables[min_i][index[min_i]].LRU_tag = 5;
-        }
+
+        tables[minplace][index[minplace]].seq = packet.seq;
+        tables[minplace][index[minplace]].t = packet.time;
+        return;
     }
 
     bool Solution(const Packet &packet) // 返回是否发生断流
     {
         TS->Insert((char *)&packet.id);
-        unsigned int num = TS->Query((char *)&packet.id);
-        
-        if(num <= 14) // 如果TS判断是小流 或者 新流，不认为断流，不插入bucket
+
+        if (TS->Query((char *)&packet.id) <= 14) // 如果TS判断是小流 或者 新流，不认为断流，不插入bucket
             return false;
-        else // 如果是旧流
+        // 如果是旧流
+
+        int index[4];
+        for (int i = 0; i < 4; i++)
+            index[i] = (hash[i]->run((char *)&packet.id, sizeof(packet.id))) % w;
+
+        int min_i;
+        uint32_t min_delta = 0xffffffff;
+        for (int i = 0; i < 4; i++)
         {
-            for (int i = 0; i < 4; i++)
-                index[i] = (hash[i]->run((char *)&packet.id, sizeof(packet.id))) % w;
-
-            int min_i;
-            uint32_t min_delta = 0xffffffff;
-            for (int i = 0; i < 4; i++)
+            if (tables[i][index[i]].seq == 0 || tables[i][index[i]].seq >= packet.seq) // 空桶 或序列号大于等于seq 则跳过
+                continue;
+            uint32_t delta = packet.seq - tables[i][index[i]].seq;
+            if (delta < min_delta)
             {
-                tables[i][index[i]].LRU_tag--;                                             // 无论是否为空，都把tag--（空的--无所谓）
-                if (tables[i][index[i]].seq == 0 || tables[i][index[i]].seq >= packet.seq) // 空桶 或序列号大于等于seq 则跳过
-                    continue;
-                uint32_t delta = packet.seq - tables[i][index[i]].seq;
-                if (delta < min_delta)
-                {
-                    min_delta = delta;
-                    min_i = i;
-                }
+                min_delta = delta;
+                min_i = i;
             }
+        }
 
-            if (min_delta < 50) // 找到seq，更新对应seq，以及非空的tag
-            {
-                tables[min_i][index[min_i]].seq = packet.seq;
-                tables[min_i][index[min_i]].LRU_tag = 5;
-                if (min_delta <= 3)
-                    return false;
-                else
-                    return true;
-            }
-            else // 发生断流，且丢失了原流
-            {
-                this->Insert(packet);
+        if (min_delta < 50) // 找到seq，更新对应seq，以及非空的tag
+        {
+            tables[min_i][index[min_i]].seq = packet.seq;
+            tables[min_i][index[min_i]].t = packet.time;
+            return min_delta > 3;
+        }
+        else // 发生断流，且丢失了原流
+        {
+            this->Insert(packet);
 #ifdef JUDGEMENT
-                return true;
+            return true;
 #else
-                return false;
+            return false;
 #endif
-            }
         }
     }
     string Name()

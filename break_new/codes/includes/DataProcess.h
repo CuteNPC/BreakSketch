@@ -3,7 +3,7 @@
 
 #define Jstart 3
 #define Jend 20
-#define Base 0.1
+#define Base 0.25
 /*记录：
     Base： 0.1     0.2    0.25     0.3     0.4
     断流： 1400   13000   27000    50000  140000

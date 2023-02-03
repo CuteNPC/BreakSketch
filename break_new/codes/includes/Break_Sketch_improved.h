@@ -9,6 +9,13 @@
 #include "Break_Sketch.h"
 #include "Tower_Sketch_CU.h"
 
+#ifdef DEBUG
+#define dbg_printf(...) printf(__VA_ARGS__)
+set<uint32_t> s;
+#else
+#define dbg_printf(...)
+#endif
+
 using namespace std;
 class Break_Sketch_improved : public Break_Sketch
 {
@@ -32,11 +39,14 @@ public:
     {
         TS->Insert((char *)&packet.id);
         unsigned int num = TS->Query((char *)&packet.id);
-        
-        if(num <= 14)
+        //dbg_printf("TS查询结果: %d\n", num);
+        if (num <= 14)
             return false;
         else
         {
+#ifdef DEBUG
+            s.insert(packet.id);
+#endif
             int index = hash->run((char *)&packet.id, sizeof(packet.id)) % size;
             int bucket_res = bucket[index].Insert(packet.seq);
 #ifdef JUDGEMENT

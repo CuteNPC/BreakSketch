@@ -13,5 +13,9 @@ public:
     uint32_t seq;
     Packet() {}
     Packet(uint32_t id_, uint32_t time_, uint32_t seq_) : id(id_), time(time_), seq(seq_) {}
+    void PrintInfo()
+    {
+        printf("id = %u, time = %u, seq = %u\n", id, time, seq);
+    }
 };
 #endif

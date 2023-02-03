@@ -133,7 +133,7 @@ uint32_t lossPacket(vector<Packet> &complete_data, vector<Packet> &loss_data,
     return losscnt.size();
 }
 
-// 从<f,T>构造<f,T,seq>，但不会抛弃包数小于256的包
+// 从<f,T>构造<f,T,seq>，但不抛弃包数小于256的包
 uint32_t Addseq_with256(vector<pair<uint32_t, uint32_t>> &input,
                         map<uint32_t, uint32_t> &flowcnt, vector<Packet> &ret, int random_seed) /* double prob = LOSS_PROB, int read_num = -1)*/
 {
@@ -295,4 +295,5 @@ vector<Packet> Addseq_and_LossPacket(vector<pair<uint32_t, uint32_t>> &input, se
     }
     return res;
 }
+
 #endif

@@ -4,6 +4,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
+
 def calcu_aver(filename, st=0, ed=10):
     """计算 num 个.csv文件的数据的平均值并保存回.csv文件; st,ed 控制计算 '..._[st ~ ed-1].csv' 的平均值"""
     filepath_list = filename.split('.')
@@ -22,6 +23,7 @@ def calcu_aver(filename, st=0, ed=10):
 
 
 def paint_module(filepath, filename ,title, xlabelname, xscalename, ylabelname):
+    '''绘图函数框架'''
     F1csv = pd.read_csv(filepath + filename + ".csv")
 
     plt.title(title)
@@ -91,8 +93,9 @@ def paint_diff_Totalmemory(st=0, ed=10):
     paint_module(filepath, "Recall", "Recall of Sketch", xlabelname, xscalename, ylabelname = "RR")
 
 def main():
-    paint_diff_TSmemory(0, 10)
-    paint_diff_Totalmemory(0, 10)
+    # paint_diff_TSmemory(0, 10)
+    # paint_diff_Totalmemory(0, 10)
     paint_time(0, 10)
+    
 
 main()

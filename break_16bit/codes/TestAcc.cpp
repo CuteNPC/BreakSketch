@@ -81,11 +81,6 @@ void diff_TSmem(int n)
             F1out << ',' << acc.F1;
             RRout << ',' << acc.RR;
             PRout << ',' << acc.PR;
-            if (i == 6)
-            {
-                printf("i=%d\n", i);
-                acc.Print();
-            }
         }
         F1out << endl;
         RRout << endl;
@@ -112,7 +107,7 @@ void diff_Totmem(int n)
     ofstream PRout("../result/Totmem_res/Precision_" + no + ".csv", ios::trunc | ios::out);
     char filename_str[128];
     F1out << csvheader, RRout << csvheader, PRout << csvheader;
-    for (int j = 0, totmemory = 96 * 8; totmemory <= 48 * 1024 * 64; j++, totmemory *= 2)
+    for (int j = 0, totmemory = 96 * 8*4; totmemory <= 48 * 1024 * 64; j++, totmemory *= 2)
     {
         F1out << totmemory;
         RRout << totmemory;
@@ -183,7 +178,7 @@ int main(int argc, char *argv[])
         mkdir("../result/output", S_IRWXU);
 
 #pragma omp parallel for
-    for (int i = 0; i < 9; i++)
+    for (int i = 0; i <= 9; i++)
     {
         diff_Totmem(i);
     }

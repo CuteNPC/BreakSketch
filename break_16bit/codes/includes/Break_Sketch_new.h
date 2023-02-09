@@ -14,7 +14,7 @@ class Break_Sketch_new : public Break_Sketch
 {
 public:
     SIMD_Bucket_4_16 *bucket_16;
-    SIMD_Bucket_8_8 *bucket_8;
+    uint8_t *seq2_bucket;
     int size;
     BOBHash *hash;
 
@@ -22,10 +22,12 @@ public:
     Break_Sketch_new(int memory, int hash_seed = 1000)
         : Break_Sketch(memory)
     {
-        size = memory / 16;
+        size = (memory+512) / 16;
         bucket_16 = new SIMD_Bucket_4_16[size];
-        bucket_8 = new SIMD_Bucket_8_8[size];
+        seq2_bucket = new uint8_t[size * 8];
         hash = new BOBHash(hash_seed);
+        memset(bucket_16, 0, memory / 2);
+        memset(seq2_bucket, 0, memory / 2);
     }
 
     bool Solution(const Packet &packet) // 返回是否发生断流
@@ -40,13 +42,18 @@ public:
         }
         else
         {
-            // 在第一层unmatch
-            // 先到第二层寻找
-            int bucket_8_res = bucket_8[index].MatchAndEmpty((uint8_t)packet.seq);
-            // 把第一层踢出的插入第二层
+            return 0;
+            uint32_t index2 = (index / 32) * 256 + (uint8_t)(packet.seq >> 8);
+            if(index2 >= size * 8)
+            {
+                printf("%d,%d,%d,%d", index, packet.seq, index2, size);
+                exit(1);
+            }
+            uint8_t seq2 = (uint8_t)(packet.seq);
+            uint8_t diff = seq2 - seq2_bucket[index2];
             if (kickednum != (uint16_t)0)
-                bucket_8[index].Insert((uint8_t)kickednum);
-            return bucket_8_res == 1;
+                seq2_bucket[index2] = kickednum;
+            return diff >= 4 && diff < 50;
         }
     }
 
@@ -59,7 +66,7 @@ public:
     {
         delete hash;
         delete[] bucket_16;
-        delete[] bucket_8;
+        delete[] seq2_bucket;
     }
 };
 

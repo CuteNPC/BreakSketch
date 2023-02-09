@@ -17,7 +17,7 @@ public:
     SIMD_Bucket_4_32 *bucket[3];
     int size;
     BOBHash *hash[3];
-    Tower_Sketch *TS;
+    Tower_Sketch_CU *TS;
 
 public:
     Break_Sketch_Optimization_1(int memory, int TSmemory, int hash_seed1 = 1000, int hash_seed2 = 1010, int hash_seed3 = 1020)
@@ -34,7 +34,7 @@ public:
         hash[1] = new BOBHash(hash_seed2);
         hash[2] = new BOBHash(hash_seed3);
 
-        TS = new Tower_Sketch(TSmemory);
+        TS = new Tower_Sketch_CU(TSmemory);
     }
 
     bool Solution(const Packet &packet) // 返回是否发生断流

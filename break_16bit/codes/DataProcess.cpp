@@ -1,3 +1,7 @@
+/*
+break_16bit 里将所有的seq设置为uint16_t，
+计划之后将flowID增加到8字节，并测试学长的算法
+*/
 #include <bits/stdc++.h>
 #include "includes/DataProcess.h"
 #include "includes/Packet.h"
@@ -12,7 +16,7 @@ vector<pair<uint32_t, uint32_t>> gt;    // <包个数，流id>
 set<uint32_t> flowSetMoreThan256;
 
 vector<Packet> complete_data;
-map<uint32_t, uint32_t> complete_data_flowcnt;
+map<uint32_t, uint16_t> complete_data_flowcnt;
 
 vector<Packet> loss_data;
 vector<char> standard_output;
@@ -29,7 +33,7 @@ int main()
 
     cout << "加入seq..." << flush;
     flowSetMoreThan256 = getFlowLargerThan256(gt);                            // 获得大于256的包id
-    Addseq_with256(input, complete_data_flowcnt, complete_data, RANDOM_SEED); // 在数据集中加入seq
+    Addseq_with256(input, complete_data_flowcnt, complete_data, flowSetMoreThan256, RANDOM_SEED); // 在数据集中加入seq
     cout << "done!" << endl;
 
     cout << "将完整数据集输出到“../data/complete_data.txt”..." << flush;

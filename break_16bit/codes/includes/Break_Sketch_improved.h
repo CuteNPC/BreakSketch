@@ -19,7 +19,7 @@ using namespace std;
 class Break_Sketch_improved : public Break_Sketch
 {
 public:
-    SIMD_Bucket_4_32 *bucket;
+    SIMD_Bucket_4_16 *bucket;
     int size;
     BOBHash *hash;
     Tower_Sketch_CU *TS;
@@ -28,16 +28,14 @@ public:
     Break_Sketch_improved(int memory, int TSmemory, int hash_seed = 1000)
         : Break_Sketch(memory)
     {
-        size = (memory - TSmemory) / 16;
-        bucket = new SIMD_Bucket_4_32[size];
+        size = (memory - TSmemory) / 8;
+        bucket = new SIMD_Bucket_4_16[size];
         hash = new BOBHash(hash_seed);
         TS = new Tower_Sketch_CU(TSmemory);
     }
 
     bool Solution(const Packet &packet) // 返回是否发生断流
     {
-        //TS->Insert((char *)&packet.id);
-        //unsigned int num = TS->Query((char *)&packet.id);
         unsigned int num = TS->InsertAndQuery((char *)&packet.id);
 
         //dbg_printf("TS查询结果: %d\n", num);

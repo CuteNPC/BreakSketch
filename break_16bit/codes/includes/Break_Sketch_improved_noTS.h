@@ -1,5 +1,5 @@
-#ifndef _BREAK_SKETCH_IMPROVED_H
-#define _BREAK_SKETCH_IMPROVED_H
+#ifndef _BREAK_SKETCH_IMPROVED_NOTS_H
+#define _BREAK_SKETCH_IMPROVED_NOTS_H
 
 #include <bits/stdc++.h>
 #include "BOBHash.h"
@@ -11,40 +11,31 @@
 
 #ifdef DEBUG
 #define dbg_printf(...) printf(__VA_ARGS__)
+set<uint32_t> s;
 #else
 #define dbg_printf(...)
 #endif
 
 using namespace std;
-class Break_Sketch_improved : public Break_Sketch
+class Break_Sketch_improved_noTS : public Break_Sketch
 {
 public:
-    SIMD_Bucket_4_32 *bucket;
+    SIMD_Bucket_4_16 *bucket;
     int size;
     BOBHash *hash;
-    Tower_Sketch_CU *TS;
 
 public:
-    Break_Sketch_improved(int memory, int TSmemory, int hash_seed = 1000)
+    Break_Sketch_improved_noTS(int memory, int hash_seed = 1000)
         : Break_Sketch(memory)
     {
-        size = (memory - TSmemory) / 16;
-        bucket = new SIMD_Bucket_4_32[size];
+        size = memory / 8;
+        bucket = new SIMD_Bucket_4_16[size];
         hash = new BOBHash(hash_seed);
-        TS = new Tower_Sketch_CU(TSmemory);
     }
 
     bool Solution(const Packet &packet) // 返回是否发生断流
     {
-        //TS->Insert((char *)&packet.id);
-        //unsigned int num = TS->Query((char *)&packet.id);
-        unsigned int num = TS->InsertAndQuery((char *)&packet.id);
-
-        //dbg_printf("TS查询结果: %d\n", num);
-        if (num <= 14)
-            return false;
-        else
-        {
+        
 #ifdef DEBUG
             s.insert(packet.id);
 #endif
@@ -55,17 +46,16 @@ public:
 #else
             return bucket_res == 1;
 #endif
-        }
+        
     }
 
     string Name()
     {
-        return string("Break_Sketch_improved");
+        return string("Break_Sketch_improved_noTS");
     }
-    ~Break_Sketch_improved()
+    ~Break_Sketch_improved_noTS()
     {
         delete hash;
-        delete TS;
         delete[] bucket;
     }
 };

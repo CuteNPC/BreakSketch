@@ -19,7 +19,7 @@ class Break_Sketch_basic_1 : public Break_Sketch
 public:
     struct cell
     {
-        uint32_t seq;
+        uint16_t seq;
         int t;
         cell() { seq = t = 0; }
     };
@@ -33,7 +33,7 @@ public:
         : Break_Sketch(memory)
     {
         TS = new Tower_Sketch_CU(TSmemory);
-        w = (memory - TSmemory) / 32;
+        w = (memory - TSmemory) / 24;
 
         for (int i = 0; i < 4; i++)
         {
@@ -55,7 +55,7 @@ public:
         int minplace = 0;
         for (int i = 0; i < 4; i++)
         {
-            if (tables[i][index[i]].seq == 0) /*找空的，找到了直接插入返回*/
+            if (tables[i][index[i]].seq == (uint16_t)0) /*找空的，找到了直接插入返回*/
             {
                 tables[i][index[i]].seq = packet.seq;
                 tables[i][index[i]].t = packet.time;
@@ -83,12 +83,12 @@ public:
             index[i] = (hash[i]->run((char *)&packet.id, sizeof(packet.id))) % w;
 
         int min_i;
-        uint32_t min_delta = 0xffffffff;
+        uint16_t min_delta = 0xffff;
         for (int i = 0; i < 4; i++)
         {
-            if (tables[i][index[i]].seq == 0 || tables[i][index[i]].seq >= packet.seq) // 空桶 或序列号大于等于seq 则跳过
+            if (tables[i][index[i]].seq == (uint16_t)0 || tables[i][index[i]].seq >= packet.seq) // 空桶 或序列号大于等于seq 则跳过
                 continue;
-            uint32_t delta = packet.seq - tables[i][index[i]].seq;
+            uint16_t delta = packet.seq - tables[i][index[i]].seq;
             if (delta < min_delta)
             {
                 min_delta = delta;
@@ -96,7 +96,7 @@ public:
             }
         }
 
-        if (min_delta < 50) // 找到seq，更新对应seq，以及非空的tag
+        if (min_delta < (uint16_t)50) // 找到seq，更新对应seq，以及非空的tag
         {
             tables[min_i][index[min_i]].seq = packet.seq;
             tables[min_i][index[min_i]].t = packet.time;

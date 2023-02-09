@@ -193,79 +193,28 @@ set<uint32_t> getFlowLargerThan256(vector<pair<uint32_t, uint32_t>> &gt)
     return ret;
 }
 
-// 从<f,T>构造<f,T,seq>，抛弃包数小于256的包
-uint32_t Addseq(vector<pair<uint32_t, uint32_t>> &input, set<uint32_t> &flowLargerThan256,
-                map<uint32_t, uint32_t> &flowcnt, vector<Packet> &ret, int random_seed) /* double prob = LOSS_PROB, int read_num = -1)*/
+// 从<f,T>构造<f,T,seq>，但不抛弃包数小于256的包 (不过尝试抛弃小流测量结果！)
+uint32_t Addseq_with256(vector<pair<uint32_t, uint32_t>> &input,
+                        map<uint32_t, uint16_t> &flowcnt, vector<Packet> &ret, set<uint32_t> flowSetMoreThan256, int random_seed)
 {
     // 初始化随机数引擎
 
     mt19937 gen(random_seed);
-    uniform_int_distribution<uint32_t> random_num;
+    uniform_int_distribution<uint32_t> random_num(0, 65535);
 
     ret.clear();
     flowcnt.clear();
     for (auto elem : input)
     {
-        if (flowLargerThan256.count(elem.first))
-        {
-            uint32_t this_seq;
+        if (flowSetMoreThan256.count(elem.first))
+        {    
+            uint16_t this_seq;
             if (flowcnt.count(elem.first))
                 this_seq = ++flowcnt[elem.first];
             else
                 this_seq = flowcnt[elem.first] = random_num(gen);
             ret.push_back(Packet(elem.first, elem.second, this_seq));
         }
-    }
-    return flowcnt.size();
-}
-
-uint32_t lossPacket(vector<Packet> &complete_data, vector<Packet> &loss_data,
-                    vector<char> &standard_output, double loss_prob, int random_seed)
-{
-    mt19937 gen(random_seed);
-    uniform_real_distribution<double> random_num;
-    loss_data.clear();
-    standard_output.clear();
-    map<uint32_t, uint32_t> losscnt;
-    for (Packet packet : complete_data)
-    {
-        if (random_num(gen) <= loss_prob) // 发生丢包
-        {
-            if (losscnt.count(packet.id))
-                losscnt[packet.id]++;
-        }
-        else // 不丢包
-        {
-            loss_data.push_back(packet);
-            if (losscnt.count(packet.id))
-                standard_output.push_back(losscnt[packet.id] >= 3 ? 'b' : 'n');
-            else
-                standard_output.push_back('n');
-            losscnt[packet.id] = 0;
-        }
-    }
-    return losscnt.size();
-}
-
-// 从<f,T>构造<f,T,seq>，但不抛弃包数小于256的包
-uint32_t Addseq_with256(vector<pair<uint32_t, uint32_t>> &input,
-                        map<uint32_t, uint32_t> &flowcnt, vector<Packet> &ret, int random_seed)
-{
-    // 初始化随机数引擎
-
-    mt19937 gen(random_seed);
-    uniform_int_distribution<uint32_t> random_num;
-
-    ret.clear();
-    flowcnt.clear();
-    for (auto elem : input)
-    {
-        uint32_t this_seq;
-        if (flowcnt.count(elem.first))
-            this_seq = ++flowcnt[elem.first];
-        else
-            this_seq = flowcnt[elem.first] = random_num(gen);
-        ret.push_back(Packet(elem.first, elem.second, this_seq));
     }
     return flowcnt.size();
 }
@@ -398,38 +347,6 @@ void LoadStandard(vector<char> &vec, string filename = "../data/standard_output.
         vec.push_back(c);
     Input.close();
     return;
-}
-// 从<f,T>构造<f,T,seq>并丢包
-vector<Packet> Addseq_and_LossPacket(vector<pair<uint32_t, uint32_t>> &input, set<uint32_t> flowLargerThan256, double prob = LOSS_PROB, int read_num = -1)
-{
-    // 初始化随机数引擎
-    mt19937 gen(RANDOM_SEED);
-    uniform_real_distribution<double> random_double(0.0, 1.0);
-    uniform_int_distribution<Seq> random_Seqtype;
-
-    // 定义变量
-    int t = 0;                   // 总计数
-    vector<Packet> res;          // 返回的处理结束的数据集
-    map<uint32_t, uint32_t> cnt; // 每个流的计数
-
-    for (auto elem : input)
-    {
-        short this_seq;
-        if (cnt.count(elem.first))
-            this_seq = ++cnt[elem.first];
-        else
-            this_seq = cnt[elem.first] = random_Seqtype(gen);
-
-        // 丢包条件
-        if ((!flowLargerThan256.count(elem.first)) ||
-            ((flowLargerThan256.count(elem.first)) && random_double(gen) > prob))
-            res.push_back(Packet(elem.first, elem.second, this_seq));
-
-        t++; // 总计数
-        if (t == read_num)
-            break;
-    }
-    return res;
 }
 
 #endif

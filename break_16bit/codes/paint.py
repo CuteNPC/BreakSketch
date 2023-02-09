@@ -13,7 +13,7 @@ def calcu_aver(filename, st=0, ed=10):
     for index in range(st, ed):
         tmpfilename = "." + filepath1 + "_" + str(index) + "." + filepath2
         # 如果修改了要测量的 sketch 的数量，记得改下面的 range(1, x)
-        tmpdata = pd.read_csv(tmpfilename, dtype = float, usecols = [i for i in range(1, 7)])
+        tmpdata = pd.read_csv(tmpfilename, dtype = float, usecols = [i for i in range(1, 9)])
         if index == st:
             X = pd.read_csv(tmpfilename, usecols = [0])
             sum = tmpdata
@@ -34,31 +34,23 @@ def paint_module(filepath, filename ,title, xlabelname, xscalename, ylabelname):
     plt.xscale(xscalename)
     
     plt.plot(F1csv['X'], F1csv['Break_Sketch_straw'], label='strawman',
-             linestyle='-', marker='o', markersize=6)
+             linestyle='-', marker='o', markersize=5)
     plt.plot(F1csv['X'], F1csv['Break_Sketch_basic_1'], label='basic1',
-             linestyle='-', marker='s', markersize=6)
+             linestyle='-', marker='s', markersize=5)
     plt.plot(F1csv['X'], F1csv['Break_Sketch_basic_2'], label='basic2',
-             linestyle='-', marker='d', markersize=6)
+             linestyle='-', marker='d', markersize=5)
     plt.plot(F1csv['X'], F1csv['Break_Sketch_improved'], label='improved',
-             linestyle='-', marker='v', markersize=6)
+             linestyle='-', marker='^', markersize=5)
+    plt.plot(F1csv['X'], F1csv['Break_Sketch_improved_noTS'], label='improved_noTS',
+             linestyle='-', marker='v', markersize=5)
+    plt.plot(F1csv['X'], F1csv['Break_Sketch_new'], label='new',
+             linestyle='-', marker='v', markersize=5)
     plt.plot(F1csv['X'], F1csv['Break_Sketch_Optimization_1'], label='Op1',
-             linestyle='-', marker='<', markersize=6)
+             linestyle='-', marker='<', markersize=5)
     plt.plot(F1csv['X'], F1csv['Break_Sketch_Optimization_2'], label='Op2',
-             linestyle='-', marker='>', markersize=6)
-    '''
-    plt.plot(F1csv['X'], F1csv['Break_Sketch_straw'], label='strawman',
-             linestyle='-', marker='o', markersize=6)
-    plt.plot(F1csv['X'], F1csv['Break_Sketch_improved'], label='improved_old',
-             linestyle='-', marker='s', markersize=6)
-    plt.plot(F1csv['X'], F1csv['Break_Sketch_improved_bigTS15'], label='bigTS_15',
-             linestyle='-', marker='d', markersize=6)
-    plt.plot(F1csv['X'], F1csv['Break_Sketch_improved_bigTS127'], label='bigTS_127',
-             linestyle='-', marker='<', markersize=6)
-    plt.plot(F1csv['X'], F1csv['Break_Sketch_improved_bigTS255'], label='bigTS_255',
-             linestyle='-', marker='>', markersize=6)
-    plt.plot(F1csv['X'], F1csv['Break_Sketch_improved_noTS'], label='noTS',
-             linestyle='-', marker='v', markersize=6)
-    '''    
+             linestyle='-', marker='>', markersize=5)
+    #plt.plot(F1csv['X'], F1csv['Break_Sketch_upbound'], label='upbound',
+    #         linestyle='-', color = 'black', marker='.', markersize=5)
     plt.legend()
     plt.savefig(filepath + filename+'.png', dpi=300, bbox_inches='tight')
     plt.show()
@@ -70,9 +62,9 @@ def paint_time(st=0, ed=10):
     """根据time_res中的数据绘制图像"""
     xlabelname = "num of packets"
     xscalename = "linear"
-    filepath = u"./break_new/result/time_res/"
+    filepath = u"./break_16bit/result/time_res/"
     
-    calcu_aver(u"./break_new/result/time_res/time.csv", st, ed)
+    calcu_aver(u"./break_16bit/result/time_res/time.csv", st, ed)
     paint_module(filepath, "time", "TimeCost of Sketch", xlabelname, xscalename, ylabelname = "time(s)")   
 
 
@@ -80,11 +72,11 @@ def paint_diff_TSmemory(st=0, ed=10):
     """根据TSmem_res中的数据绘制图像"""
     xlabelname = "TS memory/tot memory"
     xscalename = "linear"
-    filepath = u"./break_new/result/TSmem_res/"
+    filepath = u"./break_16bit/result/TSmem_res/"
     
-    calcu_aver(u"./break_new/result/TSmem_res/F1.csv", st, ed)
-    calcu_aver(u"./break_new/result/TSmem_res/Precision.csv", st, ed)
-    calcu_aver(u"./break_new/result/TSmem_res/Recall.csv", st, ed)
+    calcu_aver(u"./break_16bit/result/TSmem_res/F1.csv", st, ed)
+    calcu_aver(u"./break_16bit/result/TSmem_res/Precision.csv", st, ed)
+    calcu_aver(u"./break_16bit/result/TSmem_res/Recall.csv", st, ed)
 
     paint_module(filepath, "F1", "F1score of Sketch", xlabelname, xscalename, ylabelname = "F1")
     paint_module(filepath, "Precision", "Precision of Sketch", xlabelname, xscalename, ylabelname = "PR")
@@ -93,13 +85,13 @@ def paint_diff_TSmemory(st=0, ed=10):
 
 def paint_diff_Totalmemory(st=0, ed=10):
     """根据Totmem_res中的数据绘制图像"""
-    xlabelname = "total memory"
+    xlabelname = "total memory (B)"
     xscalename = "log"
-    filepath = u"./break_new/result/Totmem_res/"
+    filepath = u"./break_16bit/result/Totmem_res/"
     
-    calcu_aver(u"./break_new/result/Totmem_res/F1.csv", st, ed)
-    calcu_aver(u"./break_new/result/Totmem_res/Precision.csv", st, ed)
-    calcu_aver(u"./break_new/result/Totmem_res/Recall.csv", st, ed)
+    calcu_aver(u"./break_16bit/result/Totmem_res/F1.csv", st, ed)
+    calcu_aver(u"./break_16bit/result/Totmem_res/Precision.csv", st, ed)
+    calcu_aver(u"./break_16bit/result/Totmem_res/Recall.csv", st, ed)
     
     paint_module(filepath, "F1", "F1score of Sketch", xlabelname, xscalename, ylabelname = "F1")
     paint_module(filepath, "Precision", "Precision of Sketch", xlabelname, xscalename, ylabelname = "PR")

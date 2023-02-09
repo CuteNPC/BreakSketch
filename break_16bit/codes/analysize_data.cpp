@@ -31,12 +31,13 @@ vector<pair<uint32_t, uint32_t>> gt;    // <包个数，流id>
 set<uint32_t> flowSetMoreThan256;
 
 vector<Packet> complete_data;
-map<uint32_t, uint32_t> complete_data_flowcnt;
+map<uint32_t, uint16_t> complete_data_flowcnt;
 map<uint32_t, uint32_t> loss_data_cnt;
 map<uint32_t, uint32_t> repbreak_cnt;
 map<uint32_t, uint32_t> stdbreak_cnt;
 map<uint32_t, uint32_t> wrongrep_cnt;
 map<uint32_t, uint32_t> lossrep_cnt;
+map<uint16_t, uint32_t> seqcnt;
 
 vector<Packet> loss_data;
 vector<char> standard_output;
@@ -66,28 +67,23 @@ int main()
     input = loadCAIDA18();
     gt = groundtruth__(input); //flows按初始时流的大小顺序升序排列
 
-    uint32_t totnum14=0,num14=0,totnum255=0,num255=0;
     for (auto elem : gt)
-    {
         flows.push_back(flow(elem.second, elem.first));
-        if(elem.first <= 14){
-            totnum14 += elem.first;
-            num14++;
-        }
-        else if(elem.first <= 254){
-            totnum255 += elem.first;
-            num255++;
-        }
-    }
-
-    printf("num14 is %d, num14-255 is %d\n", num14, num255);
-    printf("tot14 is %d, tot14-255 is %d\n", totnum14, totnum255);
     
     flowSetMoreThan256 = getFlowLargerThan256(gt);
     Addseq_with256(input, complete_data_flowcnt, complete_data, RANDOM_SEED);
     lossPacket_with256_New(complete_data, flowSetMoreThan256, loss_data, 
                     standard_output, LOSS_PROB, RANDOM_SEED);
 
+    for(auto elem : loss_data)
+        ++seqcnt[elem.seq]; 
+    
+    ofstream seq_fout("../data/analysize/initSeq.csv", ios::trunc | ios::out);
+
+    for(auto elem : seqcnt)
+        seq_fout << elem.first << ',' << elem.second << endl; 
+
+    seq_fout.close();
     /*
     Break_Sketch* sketch = new Break_Sketch_improved(24*1024, 24*1024/8);
 

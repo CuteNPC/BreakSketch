@@ -26,13 +26,13 @@ public:
     cell *tables[4]; // 4张table，每张w个cell
     BOBHash *hash[4];
     int index[4];
-    Tower_Sketch *TS;
+    Tower_Sketch_CU *TS;
 
 public:
     Break_Sketch_basic_2(int memory, int TSmemory, int hash_seed = 1000)
         : Break_Sketch(memory)
     {
-        TS = new Tower_Sketch(TSmemory);
+        TS = new Tower_Sketch_CU(TSmemory);
         w = (memory - TSmemory) / 16;
 
         for (int i = 0; i < 4; i++)

@@ -8,68 +8,40 @@
 #include "includes/Break_Sketch_basic_1.h"
 #include "includes/Break_Sketch_basic_2.h"
 #include "includes/Break_Sketch_improved.h"
-#include "includes/Break_Sketch_improved_bigTS15.h"
-#include "includes/Break_Sketch_improved_bigTS127.h"
-#include "includes/Break_Sketch_improved_bigTS255.h"
 #include "includes/Break_Sketch_improved_noTS.h"
+#include "includes/Break_Sketch_new.h"
+#include "includes/Break_Sketch_upbound.h"
 #include "includes/Break_Sketch_Optimization_1.h"
 #include "includes/Break_Sketch_Optimization_2.h"
-#include "includes/Break_Sketch_Optimization_3.h"
 #include "omp.h"
 using namespace std;
 
-/*写成宏定义，要不每次改都得全改一遍，烦死了  [｀Д´ ] */
+vector<Packet> dataset;
 
+/*写成宏定义，要不每次改都得全改一遍，烦死了  [｀Д´ ] */
 #define Repeating_statement                                                                                   \
-    Break_Sketch *break_sketch[7];                                                                            \
+    Break_Sketch *break_sketch[9];                                                                            \
     break_sketch[1] = new Break_Sketch_straw(mem, hash_seed);                                                 \
     break_sketch[2] = new Break_Sketch_basic_1(mem, TSmem, hash_seed);                                        \
     break_sketch[3] = new Break_Sketch_basic_2(mem, TSmem, hash_seed);                                        \
     break_sketch[4] = new Break_Sketch_improved(mem, TSmem, hash_seed);                                       \
-    break_sketch[5] = new Break_Sketch_Optimization_1(mem, TSmem, hash_seed, hash_seed + 10, hash_seed + 20); \
-    break_sketch[6] = new Break_Sketch_Optimization_2(mem, TSmem, hash_seed, hash_seed + 10, hash_seed + 20); \
+    break_sketch[5] = new Break_Sketch_improved_noTS(mem, hash_seed);                                         \
+    break_sketch[6] = new Break_Sketch_new(mem, hash_seed);                                                   \
+    break_sketch[7] = new Break_Sketch_Optimization_1(mem, TSmem, hash_seed, hash_seed + 10, hash_seed + 20); \
+    break_sketch[8] = new Break_Sketch_Optimization_2(mem, TSmem, hash_seed, hash_seed + 10, hash_seed + 20); \
                                                                                                               \
-    for (int i = 1; i <= 6; i++)
+    for (int i = 1; i <= 8; i++)
 
 const char csvheader[1024] =
-"X\
+    "X\
 ,Break_Sketch_straw\
 ,Break_Sketch_basic_1\
 ,Break_Sketch_basic_2\
 ,Break_Sketch_improved\
+,Break_Sketch_improved_noTS\
+,Break_Sketch_new\
 ,Break_Sketch_Optimization_1\
 ,Break_Sketch_Optimization_2\n";
-
-/*
-#define Repeating_statement                                                                                   \
-    Break_Sketch *break_sketch[7];                                                                            \
-    break_sketch[1] = new Break_Sketch_straw(mem, hash_seed);                                                 \
-    break_sketch[2] = new Break_Sketch_improved(mem, TSmem, hash_seed);                                                 \
-    break_sketch[3] = new Break_Sketch_improved_noTS(mem, hash_seed);                                        \
-    break_sketch[4] = new Break_Sketch_improved_bigTS15(mem, hash_seed);                                        \
-    break_sketch[5] = new Break_Sketch_improved_bigTS127(mem, hash_seed);                                        \
-    break_sketch[6] = new Break_Sketch_improved_bigTS255(mem, hash_seed);                                        \
-                                                                                                              \
-    for (int i = 1; i <= 6; i++)
-
-const char csvheader[1024] =
-"X\
-,Break_Sketch_straw\
-,Break_Sketch_improved\
-,Break_Sketch_improved_noTS\
-,Break_Sketch_improved_bigTS15\
-,Break_Sketch_improved_bigTS127\
-,Break_Sketch_improved_bigTS255\n";
-*/
-
-int memarray[] = {96, 192, 384, 768, 1536, 3 * 1024, 6 * 1024, 12 * 1024, 24 * 1024, 48 * 1024};
-
-vector<Packet> dataset;
-
-/*
-以下函数参数 n 控制向 result/.../[F1/Recall/Precision/time]_n.csv 里输出当次测量的结果
-最终 paint.py 计算均值并绘图
-*/
 
 /*测量TS占内存不同比例的准确率*/
 void diff_TSmem(int n)
@@ -109,6 +81,11 @@ void diff_TSmem(int n)
             F1out << ',' << acc.F1;
             RRout << ',' << acc.RR;
             PRout << ',' << acc.PR;
+            if (i == 6)
+            {
+                printf("i=%d\n", i);
+                acc.Print();
+            }
         }
         F1out << endl;
         RRout << endl;
@@ -205,23 +182,17 @@ int main(int argc, char *argv[])
     if (access("../result/output", 0))
         mkdir("../result/output", S_IRWXU);
 
-    for (int i = 0; i < 1; i++)
-        diff_TSmem(i);
-/*
 #pragma omp parallel for
-    for (int i = 0; i < 2; i++)
+    for (int i = 0; i < 9; i++)
     {
-        if (i % 2)
-            diff_Totmem(i / 2);
-        else
-            diff_TSmem(i / 2);
+        diff_Totmem(i);
     }
-    
+
     sleep(3);
-    for (int i = 0; i < 10; i++)
-    {
-        time(i);
-    }
-*/
+    // for (int i = 0; i < 10; i++)
+    //{
+    //     time(i);
+    // }
+
     return 0;
 }

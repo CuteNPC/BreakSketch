@@ -14,9 +14,9 @@ using namespace std;
 class Break_Sketch_Optimization_2 : public Break_Sketch
 {
 public:
-    SIMD_Bucket_2_32 *bucket2;
-    SIMD_Bucket_4_32 *bucket4;
-    SIMD_Bucket_8_32 *bucket8;
+    SIMD_Bucket_2_16 *bucket2;
+    SIMD_Bucket_4_16 *bucket4;
+    SIMD_Bucket_8_16 *bucket8;
     int size2, size4, size8;
     BOBHash *hash2, *hash4, *hash8;
     Tower_Sketch_CU *TS;
@@ -34,13 +34,13 @@ public:
         hash4 = new BOBHash(hash_seed4),
         hash8 = new BOBHash(hash_seed8);
 
-        size2 = (memory - TSmemory) / 24;
-        size4 = (memory - TSmemory) / 48;
-        size8 = (memory - TSmemory) / 96;
+        size2 = (memory - TSmemory) / 12;
+        size4 = (memory - TSmemory) / 24;
+        size8 = (memory - TSmemory) / 48;
 
-        bucket2 = new SIMD_Bucket_2_32[size2];
-        bucket4 = new SIMD_Bucket_4_32[size4];
-        bucket8 = new SIMD_Bucket_8_32[size8];
+        bucket2 = new SIMD_Bucket_2_16[size2];
+        bucket4 = new SIMD_Bucket_4_16[size4];
+        bucket8 = new SIMD_Bucket_8_16[size8];
 
         TS = new Tower_Sketch_CU(TSmemory);
     }

@@ -1,5 +1,5 @@
-#ifndef _TOWER_SKETCH_2_H
-#define _TOWER_SKETCH_2_H
+#ifndef _TOWER_SKETCH_CM_H
+#define _TOWER_SKETCH_CM_H
 
 #include <bits/stdc++.h>
 #include "BOBHash.h"
@@ -11,7 +11,7 @@ static unsigned char delt_2[4] = {0b00000001, 0b00000100, 0b00010000, 0b01000000
 static unsigned char mask_4[2] = {0b00001111, 0b11110000};
 static unsigned char delt_4[2] = {0b00000001, 0b00010000};
 
-class Tower_Sketch
+class Tower_Sketch_CM
 {
 public:
 	uint32_t w_2, w_4;
@@ -20,14 +20,14 @@ public:
 	BOBHash *hash_2, *hash_4;
 
 public:
-	Tower_Sketch(int TSmemory, int hash_seed = 1000)
+	Tower_Sketch_CM(int TSmemory, int hash_seed = 1000)
 	{
-		w_2 =TSmemory * 4;
-		w_4 =TSmemory * 2;
-		table_2 = new unsigned char[TSmemory];
-		table_4 = new unsigned char[TSmemory];
-		memset(table_2, 0, TSmemory);
-		memset(table_4, 0, TSmemory);
+		w_2 =TSmemory * 2;
+		w_4 =TSmemory;
+		table_2 = new unsigned char[TSmemory / 2];
+		table_4 = new unsigned char[TSmemory / 2];
+		memset(table_2, 0, TSmemory / 2);
+		memset(table_4, 0, TSmemory / 2);
 
         hash_2 = new BOBHash(hash_seed + 2);
         hash_4 = new BOBHash(hash_seed + 4);
@@ -60,7 +60,7 @@ public:
         else return res_2 < res_4 ? res_2 : res_4;
 	}
 
-    ~Tower_Sketch()
+    ~Tower_Sketch_CM()
     {
         delete table_2;
         delete table_4;

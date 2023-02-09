@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 def paint_init():
     '''绘图函数框架'''
-    F1csv = pd.read_csv(u"./break_new/data/analysize/flowData.csv")
+    F1csv = pd.read_csv(u"./break_16bit/data/analysize/flowData.csv")
 
     plt.title("")
     plt.grid(axis='y')
@@ -33,13 +33,13 @@ def paint_init():
              linestyle='-', marker='.', markersize=5)
 
     plt.legend()
-    plt.savefig(u"./break_new/data/analysize/flowData.png", dpi=300, bbox_inches='tight')
+    plt.savefig(u"./break_16bit/data/analysize/flowData.png", dpi=300, bbox_inches='tight')
     plt.show()
     plt.cla()
 
 def paint_seq():
     '''绘图函数框架'''
-    F1csv = pd.read_csv(u"./break_new/data/analysize/initSeq.csv")
+    F1csv = pd.read_csv(u"./break_16bit/data/analysize/initSeq.csv")
 
     plt.title("")
     plt.grid(axis='y')
@@ -48,7 +48,7 @@ def paint_seq():
     plt.yscale("linear")
     plt.scatter(F1csv['seq'], F1csv['num'])
 
-    plt.savefig(u"./break_new/data/analysize/initSeq.png", dpi=300, bbox_inches='tight')
+    plt.savefig(u"./break_16bit/data/analysize/initSeq.png", dpi=300, bbox_inches='tight')
     plt.show()
     plt.cla()
 
